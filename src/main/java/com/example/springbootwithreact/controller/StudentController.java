@@ -1,12 +1,19 @@
 package com.example.springbootwithreact.controller;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,11 +40,11 @@ public class StudentController {
     private StudentServiceImpl studentServiceImpl;
 
     @PostMapping("/saveDetails")
-    public ResponseEntity<Response> saveStudentDetails(@RequestBody Student student) {
+    public ResponseEntity<Response> saveStudentDetails(@RequestBody @Valid Student student) {
 
         try {
             String saveResponse = studentServiceImpl.saveStudentDetails(student);
-            Response response = new Response(saveResponse, LocalDateTime.now());
+            Response response = new Response(saveResponse, null, LocalDateTime.now());
             return ResponseEntity.ok().body(response);
 
         } catch (Exception e) {
@@ -80,7 +87,7 @@ public class StudentController {
     public ResponseEntity<Response> updateStudentRecordById(@RequestBody Student student) {
         try {
             String saveResponse = studentServiceImpl.updateStudentRecords(student);
-            Response response = new Response(saveResponse, LocalDateTime.now());
+            Response response = new Response(saveResponse, null, LocalDateTime.now());
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -91,7 +98,7 @@ public class StudentController {
     public ResponseEntity<Response> deleteStudentRecordById(@PathVariable("id") int id) {
         try {
             String saveResponse = studentServiceImpl.deleteStudentRecords(id);
-            Response response = new Response(saveResponse, LocalDateTime.now());
+            Response response = new Response(saveResponse, null, LocalDateTime.now());
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -102,7 +109,7 @@ public class StudentController {
     public ResponseEntity<Response> deleteManyStudentRecordsByIds(@RequestBody List<Integer> ids) {
         try {
             String saveResponse = studentServiceImpl.deleteStudentRecordsByIds(ids);
-            Response response = new Response(saveResponse, LocalDateTime.now());
+            Response response = new Response(saveResponse, null, LocalDateTime.now());
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,6 +123,27 @@ public class StudentController {
         try {
             List<Response> responseAll = studentServiceImpl.insertStudentsUsingExcelUpload(file);
             return ResponseEntity.ok().body(responseAll);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @GetMapping("/getExcelData")
+    public ResponseEntity<Resource> exportExcelData() {
+        try {
+            String fileName = "students.xlsx";
+            ByteArrayInputStream byteArrayInputStream = studentServiceImpl.getStudentDataInExcel();
+            if (byteArrayInputStream != null) {
+                InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+                ResponseEntity<Resource> body = ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; fileName=" + fileName)
+                        .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                        .body(resource);
+
+                return body;
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

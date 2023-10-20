@@ -1,5 +1,6 @@
 package com.example.springbootwithreact.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -229,6 +230,18 @@ public class StudentServiceImpl implements StudentService {
 
     public boolean containsCaseInsensitive(String value, List<String> arrayList) {
         return arrayList.stream().anyMatch(x -> x.equalsIgnoreCase(value));
+    }
+
+    @Override
+    public ByteArrayInputStream getStudentDataInExcel() {
+
+        List<Student> studentList = getAllStudentList();
+        try (ByteArrayInputStream byteArrayInputStream = ExcelExport.dataToExcel(studentList)) {
+            return byteArrayInputStream;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

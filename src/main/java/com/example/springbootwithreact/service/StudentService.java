@@ -1,5 +1,6 @@
 package com.example.springbootwithreact.service;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,5 +26,7 @@ public interface StudentService {
     public String deleteStudentRecordsByIds(List<Integer> ids);
 
     public List<Response> insertStudentsUsingExcelUpload(MultipartFile file);
+
+    public ByteArrayInputStream getStudentDataInExcel();
 
 }

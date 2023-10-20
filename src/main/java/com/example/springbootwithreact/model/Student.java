@@ -1,9 +1,20 @@
 package com.example.springbootwithreact.model;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import com.example.springbootwithreact.utils.StringConstants;
 
 @Entity
 public class Student {
@@ -11,20 +22,44 @@ public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @NotNull(message = StringConstants.errorMessage)
+    @NotEmpty(message = StringConstants.errorMessage)
     private String name;
+
+    @NotNull(message = StringConstants.errorMessage)
+    @Email(message = StringConstants.emailErrorMessage)
     private String email;
+
+    @NotNull(message = StringConstants.errorMessage)
+    @NotEmpty(message = StringConstants.errorMessage)
     private String rollno;
     private String mobile;
     private String aadhar;
+
+    @NotNull(message = StringConstants.errorMessage)
+    @NotEmpty(message = StringConstants.errorMessage)
     private String address;
+
+    @NotNull(message = StringConstants.errorMessage)
+    @NotEmpty(message = StringConstants.errorMessage)
     private String pincode;
+
+    @NotNull(message = StringConstants.errorMessage)
+    @NotEmpty(message = StringConstants.errorMessage)
     private String gender;
+
+    @NotNull(message = StringConstants.emptyList)
+    @NotEmpty(message = StringConstants.emptyList)
+    @Column
+    @OneToMany(targetEntity = Subject.class, mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<@NotNull Subject> subjectList;
 
     public Student() {
     }
 
     public Student(int id, String name, String email, String rollno, String mobile, String aadhar, String address,
-            String pincode, String gender) {
+            String pincode, String gender, List<Subject> subjectList) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -34,6 +69,7 @@ public class Student {
         this.address = address;
         this.pincode = pincode;
         this.gender = gender;
+        this.subjectList = subjectList;
     }
 
     public int getId() {
@@ -121,6 +157,7 @@ public class Student {
         result = prime * result + ((address == null) ? 0 : address.hashCode());
         result = prime * result + ((pincode == null) ? 0 : pincode.hashCode());
         result = prime * result + ((gender == null) ? 0 : gender.hashCode());
+        result = prime * result + ((subjectList == null) ? 0 : subjectList.hashCode());
         return result;
     }
 
@@ -175,7 +212,20 @@ public class Student {
                 return false;
         } else if (!gender.equals(other.gender))
             return false;
+        if (subjectList == null) {
+            if (other.subjectList != null)
+                return false;
+        } else if (!subjectList.equals(other.subjectList))
+            return false;
         return true;
+    }
+
+    public List<Subject> getSubjectList() {
+        return subjectList;
+    }
+
+    public void setSubjectList(List<Subject> subjectList) {
+        this.subjectList = subjectList;
     }
 
 }
